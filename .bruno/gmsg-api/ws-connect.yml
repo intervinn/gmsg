@@ -1,0 +1,22 @@
+info:
+  name: ws-connect
+  type: websocket
+  seq: 6
+
+websocket:
+  url: ws://localhost:8088/ws
+  headers:
+    - name: Authorization
+      value: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODIyNDI1ODEsImlhdCI6MTc4MjE1NjE4MSwic3ViIjoiMjA2OTEzNjc5ODI3Mjk4MzA0MCJ9.lN-yrdHRetbRe1eOqWvkjD-L0923WIAt8IVExM0e24WQi6tGjrYB0tCbRi2Wv6xVRpwfT0OaB8lss53Or6Aox0JOC3CDiZAkkI-Poo2vrcijJDBlsdN06yQoYBIGPMHdOlLsY_lTTO_xpWr5GUpjCPWzn37YZ-qTbefpc1WzgFN_fCR8mRZRJ1lCC4cSBdWCyh1o7g6uZGn7th7a86co05gjh3Auht41kqPBQIeEGCo_WadVwGz1-jk9RZBNHMfdq4nS8IJ2G-4brc0WcuVmuy79PXjt7UhqEBoxRMc0OpfgwuuV_wrLnb3ez_BGMR_3HN-EbbylfTAoCJQm7tk3HA
+  message:
+    type: json
+    data: |-
+      {
+        "t": "set_active",
+        "d": 2069145574912823296
+      }
+  auth: inherit
+
+settings:
+  timeout: 0
+  keepAliveInterval: 0

@@ -1,0 +1,25 @@
+services:
+  nats:
+    image: nats:alpine
+    container_name: gmsg-nats
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+      - "6222:6222"
+    restart: unless-stopped
+  
+  postgres:
+    image: postgres:alpine
+    container_name: gmsg-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: gmsg
+      POSTGRES_PASSWORD: gmsg
+      POSTGRES_DB: gmsg
+    volumes:
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - pg-data:/var/lib/postgresql/data
+
+volumes:
+  pg-data:
