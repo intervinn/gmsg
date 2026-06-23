@@ -1,8 +1,8 @@
 package dto
 
 type Response struct {
-	Error   string `json:"error,omitempty"`
+	Ok      bool   `json:"ok"`
 	Message string `json:"message,omitempty"`
-	Ok      bool   `json:"ok,omitempty"`
+	Error   string `json:"error,omitempty"`
 	Data    any    `json:"data,omitempty"`
 }

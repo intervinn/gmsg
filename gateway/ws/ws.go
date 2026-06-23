@@ -3,12 +3,11 @@ package ws
 import (
 	"encoding/json"
 	"log"
-	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gobwas/ws"
 	"github.com/gobwas/ws/wsutil"
-	"github.com/intervinn/gmsg/gateway/dto"
 	"github.com/intervinn/gmsg/gateway/service"
 	"github.com/labstack/echo/v5"
 	"github.com/nats-io/nats.go"
@@ -45,31 +44,23 @@ func New(e *echo.Echo, nc *nats.Conn, ts *service.TokenService) *Controller {
 		subs: map[int64]*nats.Subscription{},
 	}
 
-	e.GET("/ws", c.OnWS)
+	e.GET("/", c.OnWS)
 
 	return c
 }
 
 func (ctl *Controller) OnWS(c *echo.Context) error {
-	tokenstr := c.Request().Header.Get("Authorization")
-	token := strings.TrimPrefix(tokenstr, "Bearer ")
-
-	_, err := ctl.ts.Verify(token)
-	if err != nil {
-		return c.JSON(http.StatusUnauthorized, dto.Response{
-			Ok:    false,
-			Error: "Unauthorized",
-		})
-	}
-
 	conn, _, _, err := ws.UpgradeHTTP(c.Request(), c.Response())
 	if err != nil {
 		return err
 	}
+	defer conn.Close()
 
 	client := &Client{
+		Closed:      false,
 		Conn:        conn,
-		State:       StateReady,
+		State:       StateHandshake,
+		UserID:      0,
 		ActiveGuild: 0,
 	}
 	ctl.cr.Add(client)
@@ -81,7 +72,7 @@ func (ctl *Controller) OnWS(c *echo.Context) error {
 			return err
 		}
 
-		if op == ws.OpClose {
+		if client.Closed || op == ws.OpClose {
 			ctl.cr.Delete(client)
 			break
 		}
@@ -99,6 +90,54 @@ func (ctl *Controller) OnWS(c *echo.Context) error {
 }
 
 func (ctl *Controller) OnMsg(c *Client, msg *Message) {
+	if c.State == StateHandshake {
+		switch msg.Type {
+		case "authenticate":
+			{
+				var token string
+				if err := json.Unmarshal(msg.Data, &token); err != nil {
+					log.Println("invalid format:", err)
+					c.Update(func(c *Client) {
+						c.Closed = true
+					})
+					return
+				}
+
+				t := strings.TrimPrefix(token, "Bearer ")
+				tok, err := ctl.ts.Verify(t)
+				if err != nil {
+					c.Update(func(c *Client) {
+						c.Closed = true
+					})
+					return
+				}
+
+				idstr, err := tok.Claims.GetSubject()
+				if err != nil {
+					log.Println("missing subject:", err)
+					c.Update(func(c *Client) {
+						c.Closed = true
+					})
+					return
+				}
+
+				id, err := strconv.ParseInt(idstr, 10, 64)
+				if err != nil {
+					c.Update(func(c *Client) {
+						c.Closed = true
+					})
+					return
+				}
+
+				c.Update(func(c *Client) {
+					c.UserID = id
+				})
+			}
+		}
+
+		return
+	}
+
 	switch msg.Type {
 	case "set_active":
 		{

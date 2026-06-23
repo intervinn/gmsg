@@ -14,8 +14,10 @@ const (
 
 type Client struct {
 	mu          sync.Mutex
+	Closed      bool
 	Conn        net.Conn
 	State       ClientState
+	UserID      int64
 	ActiveGuild int64
 }
 

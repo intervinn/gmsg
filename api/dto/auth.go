@@ -19,6 +19,8 @@ type RegisterResult struct {
 }
 
 type LoginResult struct {
+	ID            int64  `json:"id"`
+	Username      string `json:"username"`
 	Authorization string `json:"authorization"`
 }
 

@@ -136,7 +136,10 @@ func (cc *ChannelController) CreateChannel(c *echo.Context) error {
 		Name: *ch.Name,
 	}
 
-	return c.JSON(http.StatusOK, dtoch)
+	return c.JSON(http.StatusOK, dto.Response{
+		Ok:   true,
+		Data: dtoch,
+	})
 }
 
 func (cc *ChannelController) CreateGuild(c *echo.Context) error {
@@ -163,5 +166,8 @@ func (cc *ChannelController) CreateGuild(c *echo.Context) error {
 		CreatedAt: guild.CreatedAt,
 	}
 
-	return c.JSON(http.StatusOK, gdto)
+	return c.JSON(http.StatusOK, dto.Response{
+		Ok:   true,
+		Data: gdto,
+	})
 }

@@ -71,10 +71,10 @@ func (gr *GuildRegistry) onMsg(m *nats.Msg) {
 	if err := json.Unmarshal(data, msg); err != nil {
 		log.Println("failed to unmarshal:", err)
 	}
-
 	id := msg.Data.GuildID
+
 	gr.cr.Each(func(c *Client) {
-		if c.ActiveGuild == id {
+		if c.ActiveGuild == id && c.UserID != msg.Data.AuthorID {
 			wsutil.WriteServerText(c.Conn, data)
 		}
 	})

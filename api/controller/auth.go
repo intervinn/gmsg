@@ -80,10 +80,13 @@ func (ac *AuthController) Register(c *echo.Context) error {
 		return c.Blob(http.StatusBadRequest, "application/json", resServerError)
 	}
 
-	return c.JSON(http.StatusOK, dto.RegisterResult{
-		ID:            user.ID,
-		Username:      user.Username,
-		Authorization: tok,
+	return c.JSON(http.StatusOK, dto.Response{
+		Ok: true,
+		Data: dto.RegisterResult{
+			ID:            user.ID,
+			Username:      user.Username,
+			Authorization: tok,
+		},
 	})
 }
 
@@ -118,16 +121,24 @@ func (ac *AuthController) Login(c *echo.Context) error {
 		return c.Blob(http.StatusBadRequest, "application/json", resServerError)
 	}
 
-	return c.JSON(http.StatusOK, dto.LoginResult{
-		Authorization: tok,
+	return c.JSON(http.StatusOK, dto.Response{
+		Ok: true,
+		Data: dto.LoginResult{
+			ID:            user.ID,
+			Username:      user.Username,
+			Authorization: tok,
+		},
 	})
 }
 
 func (ac *AuthController) Me(c *echo.Context) error {
 	user := c.Get("user").(*model.User)
-	return c.JSON(http.StatusOK, dto.PublicUser{
-		Username:  user.Username,
-		CreatedAt: user.CreatedAt,
-		ID:        user.ID,
+	return c.JSON(http.StatusOK, dto.Response{
+		Ok: true,
+		Data: dto.PublicUser{
+			Username:  user.Username,
+			CreatedAt: user.CreatedAt,
+			ID:        user.ID,
+		},
 	})
 }

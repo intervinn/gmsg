@@ -45,6 +45,7 @@ func main() {
 	}))
 	e.Logger = logger
 
+	e.Use(middleware.CORS("*"))
 	e.Use(middleware.RequestLogger())
 	e.Use(middleware.Recover())
 
